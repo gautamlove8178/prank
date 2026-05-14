@@ -51,6 +51,7 @@
             font-family: 'Roboto Mono', monospace;
             font-size: 1rem; line-height: 1.6;
             justify-content: flex-start; align-items: flex-start;
+            overflow-y: auto;
         }
         .green { color: #0f0; text-shadow: 0 0 5px #0f0; }
         .red { color: #ff0000; text-shadow: 0 0 10px #ff0000; font-weight: bold; }
@@ -80,24 +81,34 @@
         #screen-romantic {
             background: #000;
             font-family: 'Poppins', sans-serif;
-            text-align: center; padding: 20px;
+            text-align: center; padding: 15px;
             box-sizing: border-box;
             opacity: 0; transition: opacity 3s ease-in;
             background-size: cover; background-position: center;
         }
         .particles-canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        
+        /* Message Card - Fixed for Mobile */
         .card {
-            z-index: 2; background: rgba(0, 0, 0, 0.5);
+            z-index: 2; background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            padding: 50px 30px; border-radius: 25px;
-            border: 1px solid rgba(255, 77, 166, 0.3);
+            padding: 40px 30px; border-radius: 25px;
+            border: 1px solid rgba(255, 77, 166, 0.4);
             box-shadow: 0 0 60px rgba(255, 77, 166, 0.2);
             max-width: 480px; width: 90%;
+            max-height: 85vh; /* Box will never cross screen height */
+            overflow-y: auto; /* Adds scroll if text is big */
             transform: translateY(20px); animation: slideUp 1.5s ease forwards 0.5s;
         }
+        
+        /* Custom Scrollbar for Card */
+        .card::-webkit-scrollbar { width: 6px; }
+        .card::-webkit-scrollbar-track { background: transparent; }
+        .card::-webkit-scrollbar-thumb { background: rgba(255, 77, 166, 0.5); border-radius: 10px; }
+
         @keyframes slideUp { to { transform: translateY(0); } }
         .title { color: #ff4da6; font-size: 2.2rem; font-weight: 600; margin-bottom: 25px; text-shadow: 0 0 15px rgba(255, 77, 166, 0.4); }
-        .message { color: #ffe6f2; font-size: 1.1rem; line-height: 2; margin-bottom: 40px; text-align: justify; font-weight: 300; }
+        .message { color: #ffe6f2; font-size: 1.1rem; line-height: 1.9; margin-bottom: 30px; text-align: justify; font-weight: 300; }
         .date-invite {
             color: #fff; font-size: 1.15rem;
             background: linear-gradient(45deg, #ff0844, #ffb199);
@@ -105,13 +116,24 @@
             display: inline-block; font-weight: 600;
             box-shadow: 0 5px 20px rgba(255, 8, 68, 0.5);
             letter-spacing: 1px;
+            margin-bottom: 10px;
         }
 
+        /* Mobile specific adjustments */
+        @media (max-width: 600px) {
+            .card { padding: 30px 20px; border-radius: 20px; }
+            .title { font-size: 1.8rem; margin-bottom: 15px; }
+            .message { font-size: 1rem; line-height: 1.6; margin-bottom: 25px; }
+            .date-invite { font-size: 1rem; padding: 12px 20px; }
+            .start-icon { font-size: 4rem; }
+            .start-btn { padding: 15px 30px; font-size: 1rem; }
+            #screen-terminal { font-size: 0.85rem; padding: 15px; }
+        }
     </style>
 </head>
 <body>
 
-    <!-- Sound Effects -->
+    <!-- Sound Effects - Local Files -->
     <audio id="audioHacker" loop><source src="hacker.mp3" type="audio/mpeg"></audio>
     <audio id="audioGlitch"><source src="glitch.mp3" type="audio/mpeg"></audio>
     <audio id="audioRomantic" loop><source src="romantic.mp3" type="audio/mpeg"></audio>
@@ -170,7 +192,7 @@
             div.className = `terminal-line ${className}`;
             div.innerHTML = `> ${text}`;
             terminalContent.appendChild(div);
-            window.scrollTo(0, document.body.scrollHeight);
+            screenTerminal.scrollTo(0, screenTerminal.scrollHeight);
         }
 
         async function updateLoadingBar(prefix, durationMs, realFilename) {
@@ -183,26 +205,22 @@
             for (let i = 0; i <= totalSteps; i++) {
                 const percentage = Math.floor((i / totalSteps) * 100);
                 const bars = "█".repeat(i) + "░".repeat(totalSteps - i);
-                div.innerHTML = `> ${prefix} [${bars}] ${percentage}%`;
-                window.scrollTo(0, document.body.scrollHeight);
-                if (navigator.vibrate && i % 2 === 0) navigator.vibrate([40]); // Small vibration ticks
+                div.innerHTML = `> ${prefix} <br>[${bars}] ${percentage}%`;
+                screenTerminal.scrollTo(0, screenTerminal.scrollHeight);
+                if (navigator.vibrate && i % 2 === 0) navigator.vibrate([40]); 
                 await sleep(stepTime);
             }
-            div.innerHTML = `> ${prefix} [█████████████████████████] 100% - <span class="cyan">EXTRACTION_COMPLETE</span> [${realFilename}]`;
+            div.innerHTML = `> ${prefix} <br>[█████████████████████████] 100%<br><span class="cyan">EXTRACTION_COMPLETE [${realFilename}]</span>`;
         }
 
         async function startPerfectFlow() {
-            // 1. Fullscreen Request (CRUCIAL for realism)
             const doc = document.documentElement;
-            if (doc.requestFullscreen) doc.requestFullscreen();
-            else if (doc.mozRequestFullScreen) doc.mozRequestFullScreen();
+            if (doc.requestFullscreen) doc.requestFullscreen().catch(err => console.log(err));
             else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
-            else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
 
             screenStart.style.display = 'none';
             screenTerminal.style.display = 'flex';
 
-            // Start intense vibration & hacker sound
             vibrate([300, 100, 400, 100]);
             audioHacker.play().catch(e => console.log("Hacker Audio blocked"));
 
@@ -211,12 +229,10 @@
             appendLine("Establishing device connection (IP: 192.168.1.1)...", "cyan"); await sleep(1200);
             appendLine("Android/iOS Root Firewall Breached Successfully.", "green"); await sleep(1000);
 
-            // Detailed WhatsApp Hacking Flow
             appendLine("Scanning application databases...", "white"); await sleep(800);
             appendLine("WhatsApp Data Found: msgstore.db.crypt14 (Size: 2GB)", "cyan"); await sleep(1500);
             appendLine("Initiating Data Extraction Protocol...", "yellow"); await sleep(900);
             
-            // Real Loading Bar (Approx 3 seconds)
             await updateLoadingBar("Downloading WhatsApp Chats", 3000, "chat.backup.final");
 
             await sleep(800);
@@ -235,31 +251,29 @@
         }
 
         function triggerGlitchMode() {
-            audioHacker.pause(); // Stop normal hacker sound
+            audioHacker.pause(); 
             audioHacker.currentTime = 0;
-            audioGlitch.play().catch(e => console.log("Glitch Audio blocked")); // Short intense glitch sound
+            audioGlitch.play().catch(e => console.log("Glitch Audio blocked")); 
 
             screenTerminal.style.display = 'none';
             screenGlitch.style.display = 'flex';
             
-            // Continuous aggressive vibration (Android only)
             vibrationInterval = setInterval(() => { vibrate([500, 50, 500]); }, 550);
 
-            setTimeout(() => { showRomanticScreen(); }, 3500); // 3.5 seconds of glitch
+            setTimeout(() => { showRomanticScreen(); }, 3500); 
         }
 
         function showRomanticScreen() {
-            clearInterval(vibrationInterval); // Stop vibration
-            vibrate(0); // Force vibration stop
+            clearInterval(vibrationInterval); 
+            vibrate(0); 
             audioGlitch.pause();
 
             screenGlitch.style.display = 'none';
             screenRomantic.style.display = 'flex';
             
-            // Fade-in flow & Romantic music
             setTimeout(() => {
                 screenRomantic.style.opacity = '1';
-                audioRomantic.play().catch(e => console.log("Romantic Audio blocked")); // User interaction in step 1 allows this
+                audioRomantic.play().catch(e => console.log("Romantic Audio blocked")); 
                 startHeartsAnimation();
             }, 100);
         }
@@ -273,7 +287,7 @@
             class Particle {
                 constructor() {
                     this.x = Math.random() * canvas.width;
-                    this.y = Math.random() * canvas.height + canvas.height; // Start below screen
+                    this.y = Math.random() * canvas.height + canvas.height; 
                     this.size = Math.random() * 4 + 1;
                     this.speedY = Math.random() * 1.5 + 0.5;
                     this.color = Math.random() > 0.5 ? '#ff4da6' : '#fff';
@@ -287,7 +301,7 @@
                     ctx.beginPath();
                     ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
                     ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity; ctx.fill();
-                    ctx.globalAlpha = 1; ctx.shadowBlur = 10; ctx.shadowColor = this.color; // Sparkle glow
+                    ctx.globalAlpha = 1; ctx.shadowBlur = 10; ctx.shadowColor = this.color; 
                 }
             }
             function init() { for (let i = 0; i < 80; i++) particlesArray.push(new Particle()); }
@@ -299,6 +313,11 @@
                 requestAnimationFrame(animate);
             }
             init(); animate();
+            
+            window.addEventListener('resize', () => {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            });
         }
 
         startBtn.addEventListener('click', startPerfectFlow);
