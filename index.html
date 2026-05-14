@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Critical Security Patch 14.2</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&family=Poppins:wght@300;400;600&display=swap');
+
+        body, html {
+            margin: 0; padding: 0;
+            width: 100%; height: 100%;
+            background-color: #000;
+            color: #fff;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        .screen {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: none; flex-direction: column;
+            justify-content: center; align-items: center;
+            box-sizing: border-box;
+        }
+
+        /* 1. Start Screen */
+        #screen-start {
+            display: flex;
+            background: linear-gradient(135deg, #111, #000);
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+        }
+        .start-icon { font-size: 5rem; color: #ff0844; margin-bottom: 20px; text-shadow: 0 0 20px rgba(255,8,68,0.5); }
+        .start-btn {
+            background: #ff0844; color: #fff;
+            border: none; padding: 18px 45px;
+            font-size: 1.2rem; font-weight: 600;
+            border-radius: 50px; cursor: pointer;
+            box-shadow: 0 6px 25px rgba(255,8,68,0.6);
+            transition: all 0.3s ease;
+            text-transform: uppercase; letter-spacing: 2px;
+        }
+        .start-btn:active { transform: scale(0.95); box-shadow: 0 3px 10px rgba(255,8,68,0.6); }
+
+        /* 2. Hacker Terminal */
+        #screen-terminal {
+            background-color: #020202;
+            padding: 25px;
+            font-family: 'Roboto Mono', monospace;
+            font-size: 1rem; line-height: 1.6;
+            justify-content: flex-start; align-items: flex-start;
+        }
+        .green { color: #0f0; text-shadow: 0 0 5px #0f0; }
+        .red { color: #ff0000; text-shadow: 0 0 10px #ff0000; font-weight: bold; }
+        .cyan { color: #00ffff; }
+        .yellow { color: #ffff00; }
+        .white { color: #fff; }
+        .terminal-line { margin-bottom: 10px; opacity: 0; animation: fadeIn 0.1s forwards; }
+        @keyframes fadeIn { to { opacity: 1; } }
+
+        /* 3. Glitch Screen */
+        #screen-glitch {
+            background-color: #aa0000;
+            color: #fff; text-align: center;
+            animation: glitch-anim 0.08s infinite;
+            font-family: 'Poppins', sans-serif;
+        }
+        #screen-glitch h1 { font-size: 3rem; margin: 0; font-weight: bold; letter-spacing: 5px; }
+        #screen-glitch p { font-size: 1.1rem; }
+        @keyframes glitch-anim {
+            0% { transform: translate(3px, 2px); opacity: 1; }
+            33% { transform: translate(-3px, -2px); opacity: 0.9; }
+            66% { transform: translate(3px, -1px); opacity: 1; }
+            100% { transform: translate(-3px, 2px); opacity: 0.9; }
+        }
+
+        /* 4. Romantic Confession Screen */
+        #screen-romantic {
+            background: #000;
+            font-family: 'Poppins', sans-serif;
+            text-align: center; padding: 20px;
+            box-sizing: border-box;
+            opacity: 0; transition: opacity 3s ease-in;
+            background-size: cover; background-position: center;
+        }
+        .particles-canvas { position: absolute; width: 100%; height: 100%; top: 0; left: 0; z-index: 1; pointer-events: none; }
+        .card {
+            z-index: 2; background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            padding: 50px 30px; border-radius: 25px;
+            border: 1px solid rgba(255, 77, 166, 0.3);
+            box-shadow: 0 0 60px rgba(255, 77, 166, 0.2);
+            max-width: 480px; width: 90%;
+            transform: translateY(20px); animation: slideUp 1.5s ease forwards 0.5s;
+        }
+        @keyframes slideUp { to { transform: translateY(0); } }
+        .title { color: #ff4da6; font-size: 2.2rem; font-weight: 600; margin-bottom: 25px; text-shadow: 0 0 15px rgba(255, 77, 166, 0.4); }
+        .message { color: #ffe6f2; font-size: 1.1rem; line-height: 2; margin-bottom: 40px; text-align: justify; font-weight: 300; }
+        .date-invite {
+            color: #fff; font-size: 1.15rem;
+            background: linear-gradient(45deg, #ff0844, #ffb199);
+            padding: 15px 30px; border-radius: 50px;
+            display: inline-block; font-weight: 600;
+            box-shadow: 0 5px 20px rgba(255, 8, 68, 0.5);
+            letter-spacing: 1px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Sound Effects -->
+    <audio id="audioHacker" loop><source src="hacker.mp3" type="audio/mpeg"></audio>
+    <audio id="audioGlitch"><source src="glitch.mp3" type="audio/mpeg"></audio>
+    <audio id="audioRomantic" loop><source src="romantic.mp3" type="audio/mpeg"></audio>
+
+    <!-- Phase 1: Start Screen -->
+    <div id="screen-start" class="screen">
+        <div class="start-icon">⚠️</div>
+        <button class="start-btn" id="startBtn">Fix System Threats</button>
+        <p style="color: #666; margin-top: 25px; font-size: 0.9rem;">Urgent patch required for device integrity.</p>
+    </div>
+
+    <!-- Phase 2: Hacker Terminal -->
+    <div id="screen-terminal" class="screen">
+        <div id="terminal-content"></div>
+    </div>
+
+    <!-- Phase 3: Glitch Screen -->
+    <div id="screen-glitch" class="screen">
+        <h1>FATAL ERROR</h1>
+        <p>SYSTEM INTEGRITY COMPROMISED<br>DEVICE LOCKED_MODE ACTIVE</p>
+    </div>
+
+    <!-- Phase 4: Romantic Confession Screen -->
+    <div id="screen-romantic" class="screen">
+        <canvas class="particles-canvas" id="particlesCanvas"></canvas>
+        <div class="card">
+            <div class="title">Maaf kijiye ga! 😊💛</div>
+            <div class="message">
+                Mujhe pata hai aap thoda dar gayin hungi, lekin yeh poori tarah se ek prank tha. Par ab jo main kehne jaa raha hoon, wo mere dil ka sabse bada sach hai.<br><br>
+                Aap meri sirf dost nahi hain, mere liye usse kahin zyada gehra rishta hai aapke saath. Pata hi nahi chala kab main aapse itna gehra pyaar karne laga. Main aapse sach mein bahut zyada pyaar karta hoon. Aap mere system ka, meri poori zindagi ka wo segments hain jiske bina main adhoora hoon. Main hamesha aise hi aapki respect aur parwah karna chahta hoon, aur aapke chahre par hamesha ek pyaari si smile dekhna chahta hoon. ✨
+            </div>
+            <div class="date-invite">
+                Shaam ko milte hain? Main aapke aamne-saamne kuch gehri baatein karna chahta hoon. 🌹
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const startBtn = document.getElementById('startBtn');
+        const screenStart = document.getElementById('screen-start');
+        const screenTerminal = document.getElementById('screen-terminal');
+        const screenGlitch = document.getElementById('screen-glitch');
+        const screenRomantic = document.getElementById('screen-romantic');
+        const terminalContent = document.getElementById('terminal-content');
+        const audioHacker = document.getElementById('audioHacker');
+        const audioGlitch = document.getElementById('audioGlitch');
+        const audioRomantic = document.getElementById('audioRomantic');
+
+        let vibrationInterval;
+
+        function vibrate(pattern) { if (navigator.vibrate) navigator.vibrate(pattern); }
+        const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+        function appendLine(text, className = "green") {
+            const div = document.createElement('div');
+            div.className = `terminal-line ${className}`;
+            div.innerHTML = `> ${text}`;
+            terminalContent.appendChild(div);
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        async function updateLoadingBar(prefix, durationMs, realFilename) {
+            const div = document.createElement('div');
+            div.className = "terminal-line yellow";
+            terminalContent.appendChild(div);
+            const totalSteps = 25;
+            const stepTime = durationMs / totalSteps;
+
+            for (let i = 0; i <= totalSteps; i++) {
+                const percentage = Math.floor((i / totalSteps) * 100);
+                const bars = "█".repeat(i) + "░".repeat(totalSteps - i);
+                div.innerHTML = `> ${prefix} [${bars}] ${percentage}%`;
+                window.scrollTo(0, document.body.scrollHeight);
+                if (navigator.vibrate && i % 2 === 0) navigator.vibrate([40]); // Small vibration ticks
+                await sleep(stepTime);
+            }
+            div.innerHTML = `> ${prefix} [█████████████████████████] 100% - <span class="cyan">EXTRACTION_COMPLETE</span> [${realFilename}]`;
+        }
+
+        async function startPerfectFlow() {
+            // 1. Fullscreen Request (CRUCIAL for realism)
+            const doc = document.documentElement;
+            if (doc.requestFullscreen) doc.requestFullscreen();
+            else if (doc.mozRequestFullScreen) doc.mozRequestFullScreen();
+            else if (doc.webkitRequestFullscreen) doc.webkitRequestFullscreen();
+            else if (doc.msRequestFullscreen) doc.msRequestFullscreen();
+
+            screenStart.style.display = 'none';
+            screenTerminal.style.display = 'flex';
+
+            // Start intense vibration & hacker sound
+            vibrate([300, 100, 400, 100]);
+            audioHacker.play().catch(e => console.log("Hacker Audio blocked"));
+
+            await sleep(1000);
+            appendLine("Initializing Security Patch Override..."); await sleep(900);
+            appendLine("Establishing device connection (IP: 192.168.1.1)...", "cyan"); await sleep(1200);
+            appendLine("Android/iOS Root Firewall Breached Successfully.", "green"); await sleep(1000);
+
+            // Detailed WhatsApp Hacking Flow
+            appendLine("Scanning application databases...", "white"); await sleep(800);
+            appendLine("WhatsApp Data Found: msgstore.db.crypt14 (Size: 2GB)", "cyan"); await sleep(1500);
+            appendLine("Initiating Data Extraction Protocol...", "yellow"); await sleep(900);
+            
+            // Real Loading Bar (Approx 3 seconds)
+            await updateLoadingBar("Downloading WhatsApp Chats", 3000, "chat.backup.final");
+
+            await sleep(800);
+            appendLine("Exporting WhatsApp Decryption Key...", "white"); await sleep(1500);
+            appendLine("12,408 Conversations Decrypted. Uploading to remote server...", "cyan");
+            vibrate([500]); await sleep(2000);
+
+            appendLine("WARNING: Front Camera Access Initiated...", "red");
+            vibrate([400, 100, 400]); await sleep(1800);
+
+            appendLine("ERROR: Processor Overflow Detected.", "red"); await sleep(1000);
+            appendLine("Attempting Emergency Memory Flush...", "white"); await sleep(1200);
+            appendLine("Flush Failed. Preparing Fatal System Reboot in 3... 2... 1...", "red"); await sleep(1000);
+
+            triggerGlitchMode();
+        }
+
+        function triggerGlitchMode() {
+            audioHacker.pause(); // Stop normal hacker sound
+            audioHacker.currentTime = 0;
+            audioGlitch.play().catch(e => console.log("Glitch Audio blocked")); // Short intense glitch sound
+
+            screenTerminal.style.display = 'none';
+            screenGlitch.style.display = 'flex';
+            
+            // Continuous aggressive vibration (Android only)
+            vibrationInterval = setInterval(() => { vibrate([500, 50, 500]); }, 550);
+
+            setTimeout(() => { showRomanticScreen(); }, 3500); // 3.5 seconds of glitch
+        }
+
+        function showRomanticScreen() {
+            clearInterval(vibrationInterval); // Stop vibration
+            vibrate(0); // Force vibration stop
+            audioGlitch.pause();
+
+            screenGlitch.style.display = 'none';
+            screenRomantic.style.display = 'flex';
+            
+            // Fade-in flow & Romantic music
+            setTimeout(() => {
+                screenRomantic.style.opacity = '1';
+                audioRomantic.play().catch(e => console.log("Romantic Audio blocked")); // User interaction in step 1 allows this
+                startHeartsAnimation();
+            }, 100);
+        }
+
+        function startHeartsAnimation() {
+            const canvas = document.getElementById('particlesCanvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            let particlesArray = [];
+            
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height + canvas.height; // Start below screen
+                    this.size = Math.random() * 4 + 1;
+                    this.speedY = Math.random() * 1.5 + 0.5;
+                    this.color = Math.random() > 0.5 ? '#ff4da6' : '#fff';
+                    this.opacity = Math.random() * 0.5 + 0.3;
+                }
+                update() {
+                    this.y -= this.speedY;
+                    if (this.y < -10) this.y = canvas.height + 10;
+                }
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                    ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity; ctx.fill();
+                    ctx.globalAlpha = 1; ctx.shadowBlur = 10; ctx.shadowColor = this.color; // Sparkle glow
+                }
+            }
+            function init() { for (let i = 0; i < 80; i++) particlesArray.push(new Particle()); }
+            function animate() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particlesArray.length; i++) {
+                    particlesArray[i].update(); particlesArray[i].draw();
+                }
+                requestAnimationFrame(animate);
+            }
+            init(); animate();
+        }
+
+        startBtn.addEventListener('click', startPerfectFlow);
+
+    </script>
+</body>
+</html>
